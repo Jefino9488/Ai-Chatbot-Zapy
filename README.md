@@ -5,7 +5,8 @@ Simple bot just started to work with it , many more to come , stay tuned.
 
 ## Updation
 You can easily create and update the response and train the bot more by
-feeding more predefined questions and answers to it .
+feeding more predefined questions and answers to it.
+
 ![image](https://user-images.githubusercontent.com/89455522/206868572-2d3f6872-c6c8-4585-a7ab-a35a498180f1.png)
 
 ### Weather
