@@ -21,7 +21,7 @@ headers = {
 greetings = ["Hello!", "What's up?!", "Howdy!", "Greetings!"]
 goodbyes = ["Bye!", "Goodbye!", "See you later!", "See you soon!"]
 special = ['day', 'time', 'weather', 'add', 'addition', 'subtract', 'subtraction', 'multiply', 'multiplication',
-           'division', 'divide', "/fact"]
+           'division', 'divide', "/fact", "guess a number", "guess_a_number", "games"]
 res = [dt, current_time, ]
 keywords = listfromtxt('keywords.txt')
 response = listfromtxt('responses.txt')
@@ -66,6 +66,36 @@ def division(n1, n2):
     rem = n1 % n2
     print("Quotient = ", div)
     print("Remainder = ", rem)
+
+
+def guess_num():
+    lower = int(input("Enter Lower Range:- "))
+    upper = int(input("Enter Upper Range:- "))
+
+    x = random.randint(lower, upper)
+    print("\n\tYou've only ",
+          round(math.log(upper - lower + 1, 2)),
+          " chances to guess the integer!\n")
+
+    count = 0
+
+    while count < math.log(upper - lower + 1, 2):
+        count += 1
+
+        guess = int(input("Guess a number:- "))
+
+        if x == guess:
+            print("Congratulations you did it in ",
+                  count, " try")
+            break
+        elif x > guess:
+            print("You guessed too small!")
+        elif x < guess:
+            print("You Guessed too high!")
+
+    if count >= math.log(upper - lower + 1, 2):
+        print("\nThe number is %d" % x)
+        print("\tBetter Luck Next time!")
 
 
 # checking files
@@ -148,6 +178,10 @@ while user != "bye":
                 num1 = float(input("Enter first number: "))
                 num2 = float(input("Enter second number: "))
                 division(num1, num2)
+                keyword_found = True
+                break
+            elif special[12] == user or special[13] == user:
+                guess_num()
                 keyword_found = True
                 break
             elif special[2] == user:
