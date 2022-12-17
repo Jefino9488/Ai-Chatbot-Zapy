@@ -107,24 +107,17 @@ while user != "bye":
     if not keyword_found:
         for index in range(len(special)):
             if special[2] in user:
-                while user != "/stop":
-                    try:
-                        city = input("Bot: Enter the Name of City -> ")
-                        city = city + " weather"
-                        weather(city)
-                        keyword_found = True
-                    except BaseException:
-                        print("An error occurred")
-                        print("[Check your Connection]")
-                        keyword_found = True
-                        pass
-                    user = input("Bot : Press enter to continue or [/stop] to stop :")
-                    if user == "/stop":
-                        keyword_found = True
-                        break
-                    elif user != "":
-                        print("pls check ur entry")
-                        user = input("Bot : Press enter to continue or [/stop] to stop :")
+                try:
+                    city = input("Bot: Enter the Name of City -> ")
+                    city = city + " weather"
+                    weather(city)
+                    keyword_found = True
+                except BaseException:
+                    print("An error occurred")
+                    print("[Check your Connection]")
+                    keyword_found = True
+                    pass
+                break
 
             elif special[3] == user or special[2] == user:
                 num1 = float(input("Enter first number: "))
