@@ -180,7 +180,7 @@ while user != "bye":
                 division(num1, num2)
                 keyword_found = True
                 break
-            elif special[13] == user or special[12] == user:
+            elif special[12] == user or special[13] == user:
                 guess_num()
                 keyword_found = True
                 break
