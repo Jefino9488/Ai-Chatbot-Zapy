@@ -34,6 +34,3 @@ you can get time & day.
 It can fetch some random facts for you.
 ![image](https://user-images.githubusercontent.com/89455522/206868397-5b374ec1-03d9-4758-bb15-eaeea29e20f5.png)
 
-# Future Ideas
- I will add g-drive option where you can download & update the response files 
- and there will be more posible to get more and more questions 
