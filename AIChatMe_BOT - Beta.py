@@ -10,7 +10,7 @@ import openai
 import pyttsx3
 import speech_recognition as rec
 from API_Hidden_Key import api_key
-from sample import decrease, increase
+from Control import decrease, increase
 from AppOpener import open
 
 openai.api_key = api_key()
