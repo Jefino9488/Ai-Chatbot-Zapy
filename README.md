@@ -3,12 +3,6 @@
 ![image](https://user-images.githubusercontent.com/89455522/206867359-8c5f9c04-49e5-4951-8a96-f36c50063f06.png)
 Simple bot just started to work with it , many more to come , stay tuned.
 
-## Updation
-You can easily create and update the response and train the bot more by
-feeding more predefined questions and answers to it.
-
-![image](https://user-images.githubusercontent.com/89455522/206868572-2d3f6872-c6c8-4585-a7ab-a35a498180f1.png)
-
 ### Weather
 It can also do some basic function like ,You can search weather of any city,
 ![image](https://user-images.githubusercontent.com/89455522/206867458-fe2ac3c8-6469-47d2-b110-072697901fc7.png)
