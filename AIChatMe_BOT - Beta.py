@@ -6,9 +6,22 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 from simplelist import listfromtxt
-from simplelist import txtfromlist
-import numpy
-import randfacts
+import openai
+import pyttsx3
+import speech_recognition as rec
+from API_Hidden_Key import api_key
+from sample import decrease, increase
+from AppOpener import open
+
+openai.api_key = api_key()
+
+engine = pyttsx3.init()
+
+r = rec.Recognizer()
+mic = rec.Microphone()
+
+conversation = ""
+user_name = "Jefino"
 
 # resource initialisation
 t = time.localtime()
@@ -20,7 +33,7 @@ headers = {
 greetings = ["Hello!", "What's up?!", "Howdy!", "Greetings!"]
 goodbyes = ["Bye!", "Goodbye!", "See you later!", "See you soon!"]
 special = ['day', 'time', 'weather', 'add', 'addition', 'subtract', 'subtraction', 'multiply', 'multiplication',
-           'division', 'divide', "/fact"]
+           'division', 'divide', "/ai"]
 res = [dt, current_time, ]
 keywords = listfromtxt('keywords.txt')
 response = listfromtxt('responses.txt')
@@ -144,35 +157,84 @@ while user != "bye":
                 keyword_found = True
                 break
             elif special[11] == user:
-                while user != "/stop":
-                    x = randfacts.get_fact(True)
-                    print("#Fact :", x)
-                    user = input("Bot : Press enter to continue or [/stop] to stop :")
-                    if user == "/stop":
-                        keyword_found = True
-                        break
-                    elif user != "":
-                        print("pls check ur entry")
-                        user = input("Bot : Press enter to continue or [/stop] to stop :")
-                break
+                while True:
+                    with mic as source:
+                        print("Listening...")
+                        r.adjust_for_ambient_noise(source, duration=0.2)
+                        audio = r.listen(source)
+                        print("no longer listening...")
+                    try:
+                        user_input = r.recognize_google(audio)
+                        print("You said: " + user_input)
 
-            elif special[index] == user:
-                print("Bot: " + res[index])
+                    except BaseException:
+                        print("Could not understand audio, please try again")
+                        engine.say("Could not understand audio, please try again")
+                        engine.runAndWait()
+                        continue
+                    if user_input == "open WhatsApp":
+                        open("whatsapp")
+                        engine.say("opening whatsapp")
+                        engine.runAndWait()
+                    if user_input == "open Google":
+                        open("google chrome")
+                        engine.say("opening google")
+                        engine.runAndWait()
+                    if user_input == "open YouTube":
+                        open("youtube")
+                        engine.say("opening youtube")
+                        engine.runAndWait()
+                    if user_input == "open Firefox":
+                        open("firefox")
+                        engine.say("opening firefox")
+                        engine.runAndWait()
+                    if user_input == "decrease volume" or user_input == "degrees volume" or user_input == "decrease the volume":
+                        decrease()
+                        engine.say("decreasing volume")
+                        engine.runAndWait()
+                    if user_input == "increase volume" or user_input == "increase the volume":
+                        increase()
+                        engine.say("increasing volume")
+                        engine.runAndWait()
+                    else:
+                        prompt = user_name + ": " + user_input + "\nBot: "
+                        conversation += prompt
+
+                        response = openai.Completion.create(engine='text-davinci-003', prompt=conversation,
+                                                            max_tokens=100)
+                        response_string = response['choices'][0]['text'].replace("\n", " ")
+                        response_string = response_string.split(user_name + ":", 1)[0].split("Bot:", 1)[0]
+
+                        conversation += response_string + "\n"
+
+                        print("Bot: " + response_string)
+                        engine.say(response_string)
+                        engine.runAndWait()
+
+                        if user_input == "exit":
+                            break
                 keyword_found = True
                 break
 
     if not keyword_found:
-        new_keyword = user
-        keywords.append(new_keyword)
-        print("Bot: SORRY!! I'm not sure how to respond")
-        print("Bot: How should I respond to {" + new_keyword + "} ?")
-        new_response = input("BotResponse: ")
-        response.append(new_response)
-        newKeyword = txtfromlist('keywords.txt', keywords)
-        newResponse = txtfromlist('responses.txt', response)
-        print("Bot: New response has been updated")
+        user_input = user
+
+        prompt = user_name + ": " + user_input + "\nBot: "
+        conversation += prompt
+
+        response = openai.Completion.create(engine='text-davinci-003', prompt=conversation, max_tokens=50)
+        response_string = response['choices'][0]['text'].replace("\n", " ")
+        response_string = response_string.split(user_name + ":", 1)[0].split("Bot:", 1)[0]
+
+        conversation += response_string + "\n"
+
+        print("Bot: " + response_string)
+        engine.say(response_string)
+        engine.runAndWait()
+        keyword_found = True
 
     user = input("You: ")
     user = user.lower()
 
 print("Bot:", random.choice(goodbyes))
+
