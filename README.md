@@ -1,5 +1,5 @@
 # Ai Chatbot - Zapy
-## Ai powerd chat bot uses predefined functions and keyword to do some special activities
+## Chat gpt powerd chat bot with Voice input
 ![image](https://user-images.githubusercontent.com/89455522/206867359-8c5f9c04-49e5-4951-8a96-f36c50063f06.png)
 Simple bot just started to work with it , many more to come , stay tuned.
 
