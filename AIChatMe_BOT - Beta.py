@@ -220,8 +220,8 @@ while user != "bye":
                         user_input = r.recognize_google(audio)
                         print("You said: " + user_input)
                     except:
-                        print("Could not understand audio")
-                        engine.say("Could not understand audio")
+                        print("Could not recognize,please try again")
+                        engine.say("Could not recognize,please try again")
                         engine.runAndWait()
                         continue
 
