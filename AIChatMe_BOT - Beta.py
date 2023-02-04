@@ -10,8 +10,9 @@ import openai
 import pyttsx3
 import speech_recognition as rec
 from API_Hidden_Key import api_key
-from Control import decrease, increase
-from AppOpener import open
+from Control import *
+from AppOpener import open, close
+from spotify import song, songv
 
 openai.api_key = api_key()
 
@@ -19,7 +20,6 @@ engine = pyttsx3.init()
 
 r = rec.Recognizer()
 mic = rec.Microphone()
-
 conversation = ""
 user_name = "Jefino"
 
@@ -32,8 +32,7 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (HTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
 greetings = ["Hello!", "What's up?!", "Howdy!", "Greetings!"]
 goodbyes = ["Bye!", "Goodbye!", "See you later!", "See you soon!"]
-special = ['day', 'time', 'weather', 'add', 'addition', 'subtract', 'subtraction', 'multiply', 'multiplication',
-           'division', 'divide', "/ai"]
+special = ['day', 'time', 'weather', "/voice", "maths"]
 res = [dt, current_time, ]
 keywords = listfromtxt('keywords.txt')
 response = listfromtxt('responses.txt')
@@ -56,39 +55,61 @@ def weather(place="Chennai"):
     print(place_time)
     print(info)
     print(temp + "°C")
+    engine.say(f"the weather in {location} is {info} and the temperature is {temp} degrees celsius")
 
 
-def addition(n1, n2):
-    addi = n1 + n2
-    print("Result = ", addi)
+math_operations = {
+    "addition": lambda n1, n2: n1 + n2,
+    "subtraction": lambda n1, n2: n1 - n2,
+    "multiplication": lambda n1, n2: n1 * n2,
+    "division": lambda n1, n2: n1 / n2
+}
 
 
-def subtraction(n1, n2):
-    sub = n1 - n2
-    print("Result = ", sub)
+def play_song():
+    with mic as origin:
+        print("say the name of the song")
+        engine.say("say the name of the song")
+        engine.runAndWait()
+        r.adjust_for_ambient_noise(origin, duration=0.2)
+        sound = r.listen(origin)
+        print("Recognizing...")
+        engine.say("Recognizing...")
+        engine.runAndWait()
+    try:
+        users_text = r.recognize_google(sound)
+        print("You said: " + users_text)
+    except BaseException:
+        print("cant recognize, please try again")
+        engine.say("cant recognize, please try again")
+        engine.runAndWait()
+        return
+    song(users_text)
+    engine.say("playing music")
+    engine.runAndWait()
 
 
-def multiplication(n1, n2):
-    mul = n1 * n2
-    print("Result = ", mul)
+def open_app(app_name, speech_text):
+    open(app_name)
+    engine.say(speech_text)
+    engine.runAndWait()
 
 
-def division(n1, n2):
-    div = n1 / n2
-    rem = n1 % n2
-    print("Quotient = ", div)
-    print("Remainder = ", rem)
+def close_app(app_name, speech_text):
+    close(app_name)
+    engine.say(speech_text)
+    engine.runAndWait()
 
 
 # checking files
+engine.say("Initialising Zapy, please wait")
+engine.runAndWait()
 time.sleep(1)
-print("checking files")
-time.sleep(1)
+
 Keyword_file = os.path.exists('keywords.txt')
 response_file = os.path.exists('responses.txt')
-print("keywords found status :", Keyword_file)
-print("Response found status :", response_file)
 time.sleep(1)
+
 if not Keyword_file:
     print("keyword file not found")
     time.sleep(2)
@@ -103,9 +124,13 @@ if not response_file:
     print("done")
 
 # bot starts
+print("Zapy:", random.choice(greetings))
+engine.say("AI Chat Me BOT ZAPY, version 1.0, Initiated")
 time.sleep(1)
-print("its", current_time, dt)
-print("Bot:", random.choice(greetings))
+engine.runAndWait()
+print("Zapy: Text to speech enabled, use /voice to enable voice mode")
+engine.say("Text to speech enabled, use /voice to enable voice mode")
+engine.runAndWait()
 user = input("You: ")
 user = user.lower()
 while user != "bye":
@@ -113,7 +138,9 @@ while user != "bye":
     # analise
     for index in range(len(keywords)):
         if keywords[index] == user:
-            print("Bot: " + response[index])
+            print("Zapy: " + response[index])
+            engine.say(response[index])
+            engine.runAndWait()
             keyword_found = True
             break
     # special
@@ -122,113 +149,122 @@ while user != "bye":
             if special[2] in user:
                 try:
                     city = input("Bot: Enter the Name of City -> ")
+                    engine.say("Enter the Name of City")
                     city = city + " weather"
                     weather(city)
                     keyword_found = True
-                except BaseException:
+                except:
                     print("An error occurred")
+                    engine.say("An error occurred")
                     print("[Check your Connection]")
+                    engine.say("Check your Connection")
                     keyword_found = True
                     pass
                 break
+            elif user == "play a song" or user == "play song" or user == "play a song for me" or user == "play song for me":
+                engine.say("playing a song")
+                engine.runAndWait()
+                songv()
+                keyword_found = True
+                break
+            elif special[4] == user:
+                operation = input("Enter operation (addition, subtraction, multiplication, division, exit): ")
+                if operation == "exit":
+                    keyword_found = True
+                    break
 
-            elif special[3] == user or special[2] == user:
-                num1 = float(input("Enter first number: "))
-                num2 = float(input("Enter second number: "))
-                addition(num1, num2)
-                keyword_found = True
-                break
-            elif special[5] == user or special[6] == user:
-                num1 = float(input("Enter first number: "))
-                num2 = float(input("Enter second number: "))
-                subtraction(num1, num2)
-                keyword_found = True
-                break
-            elif special[7] == user or special[8] == user:
-                num1 = float(input("Enter first number: "))
-                num2 = float(input("Enter second number: "))
-                multiplication(num1, num2)
-                keyword_found = True
-                break
-            elif special[9] == user or special[10] == user:
-                num1 = float(input("Enter first number: "))
-                num2 = float(input("Enter second number: "))
-                division(num1, num2)
-                keyword_found = True
-                break
-            elif special[11] == user:
+                else:
+                    n1 = float(input("Enter first number: "))
+                    n2 = float(input("Enter second number: "))
+                    result = math_operations.get(operation, "Invalid Operation")(n1, n2)
+
+                    if isinstance(result, float):
+                        print("Result: ", result)
+                    else:
+                        print(result)
+
+            elif special[3] == user:
+                print("voice mode enabled")
+                engine.say("voice mode enabled")
+                engine.runAndWait()
+                commands = {
+                    "open Google": lambda: open_app("google chrome", "opening google"),
+                    "open chrome": lambda: open_app("google chrome", "opening google"),
+                    "open YouTube": lambda: open_app("youtube", "opening youtube"),
+                    "open WhatsApp": lambda: open_app("whatsapp", "opening whatsapp"),
+                    "open Firefox": lambda: open_app("firefox", "opening firefox"),
+                    "play a song": play_song,
+                    "increase brightness": increase_,
+                    "increase the brightness": increase_,
+                    "decrease volume": decrease,
+                    "decrease the volume": decrease,
+                    "increase volume": increase,
+                    "increase the volume": increase,
+                    "decrease brightness": decrease_,
+                    "decrease the brightness": decrease_,
+                    "open camera": lambda: open_app("camera", "opening camera"),
+                    "open calculator": lambda: open_app("calculator", "opening calculator"),
+                    "open Notepad": lambda: open_app("notepad", "opening notepad"),
+                }
                 while True:
                     with mic as source:
-                        print("Listening...")
+                        print("listening...")
+                        engine.say("listening...")
+                        engine.runAndWait()
                         r.adjust_for_ambient_noise(source, duration=0.2)
                         audio = r.listen(source)
-                        print("no longer listening...")
+                        print("recognising...")
+                        engine.say("recognising...")
+                        engine.runAndWait()
                     try:
                         user_input = r.recognize_google(audio)
                         print("You said: " + user_input)
-
-                    except BaseException:
-                        print("Could not understand audio, please try again")
-                        engine.say("Could not understand audio, please try again")
+                    except:
+                        print("Could not understand audio")
+                        engine.say("Could not understand audio")
                         engine.runAndWait()
                         continue
-                    if user_input == "open WhatsApp":
-                        open("whatsapp")
-                        engine.say("opening whatsapp")
-                        engine.runAndWait()
-                    if user_input == "open Google":
-                        open("google chrome")
-                        engine.say("opening google")
-                        engine.runAndWait()
-                    if user_input == "open YouTube":
-                        open("youtube")
-                        engine.say("opening youtube")
-                        engine.runAndWait()
-                    if user_input == "open Firefox":
-                        open("firefox")
-                        engine.say("opening firefox")
-                        engine.runAndWait()
-                    if user_input == "decrease volume" or user_input == "degrees volume" or user_input == "decrease the volume":
-                        decrease()
-                        engine.say("decreasing volume")
-                        engine.runAndWait()
-                    if user_input == "increase volume" or user_input == "increase the volume":
-                        increase()
-                        engine.say("increasing volume")
-                        engine.runAndWait()
+
+                    if user_input in commands:
+                        commands[user_input]()
                     else:
-                        prompt = user_name + ": " + user_input + "\nBot: "
-                        conversation += prompt
+                        try:
+                            prompt = user_name + ": " + user_input + "\nZapy: "
+                            conversation += prompt
 
-                        response = openai.Completion.create(engine='text-davinci-003', prompt=conversation,
-                                                            max_tokens=100)
-                        response_string = response['choices'][0]['text'].replace("\n", " ")
-                        response_string = response_string.split(user_name + ":", 1)[0].split("Bot:", 1)[0]
+                            response_ = openai.Completion.create(engine='text-davinci-003', prompt=conversation,
+                                                                 max_tokens=100)
+                            response_string = response_['choices'][0]['text'].replace("\n", " ")
+                            response_string = response_string.split(user_name + ":", 1)[0].split("Zapy:", 1)[0]
 
-                        conversation += response_string + "\n"
+                            conversation += response_string + "\n"
 
-                        print("Bot: " + response_string)
-                        engine.say(response_string)
-                        engine.runAndWait()
+                            print("Zapy: " + response_string)
+                            engine.say(response_string)
+                            engine.runAndWait()
+                        except:
+                            print("check your internet connection")
+                            engine.say("check your internet connection")
+                            engine.runAndWait()
+                            continue
 
-                        if user_input == "exit":
-                            break
+                    if user_input == "exit":
+                        break
                 keyword_found = True
                 break
-
     if not keyword_found:
         user_input = user
 
-        prompt = user_name + ": " + user_input + "\nBot: "
+        prompt = user_name + ": " + user_input + "\nZapy: "
         conversation += prompt
 
-        response = openai.Completion.create(engine='text-davinci-003', prompt=conversation, max_tokens=50)
-        response_string = response['choices'][0]['text'].replace("\n", " ")
-        response_string = response_string.split(user_name + ":", 1)[0].split("Bot:", 1)[0]
+        _response = openai.Completion.create(engine='text-davinci-003', prompt=conversation, max_tokens=50)
+        response_string = _response['choices'][0]['text'].replace("\n", " ")
+        response_string = response_string.split(user_name + ":", 1)[0].split("Zapy:", 1)[0]
 
         conversation += response_string + "\n"
 
-        print("Bot: " + response_string)
+        print("Zapy: " + response_string)
         engine.say(response_string)
         engine.runAndWait()
         keyword_found = True
@@ -236,5 +272,4 @@ while user != "bye":
     user = input("You: ")
     user = user.lower()
 
-print("Bot:", random.choice(goodbyes))
-
+print("Zapy:", random.choice(goodbyes))
