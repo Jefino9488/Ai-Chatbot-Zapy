@@ -5,14 +5,18 @@ from datetime import date
 from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
-from simplelist import listfromtxt
+from simplelist import listfromtxt, txtfromlist
 import openai
 import pyttsx3
 import speech_recognition as rec
 from API_Hidden_Key import api_key
 from Control import *
+try:
+    from spotify import *
+except:
+    pass
 from AppOpener import open, close
-from spotify import song, songv
+
 
 openai.api_key = api_key()
 
@@ -124,13 +128,16 @@ if not response_file:
     print("done")
 
 # bot starts
-print("Zapy:", random.choice(greetings))
 engine.say("AI Chat Me BOT ZAPY, version 1.0, Initiated")
 time.sleep(1)
 engine.runAndWait()
 print("Zapy: Text to speech enabled, use /voice to enable voice mode")
 engine.say("Text to speech enabled, use /voice to enable voice mode")
 engine.runAndWait()
+engine.say("Do you want to save new response?")
+engine.runAndWait()
+save_response = input("Do you want to save this response? (y/n) \n [tip: save when you are training the bot] \n You: ")
+print("Zapy:", random.choice(greetings))
 user = input("You: ")
 user = user.lower()
 while user != "bye":
@@ -255,19 +262,39 @@ while user != "bye":
     if not keyword_found:
         user_input = user
 
-        prompt = user_name + ": " + user_input + "\nZapy: "
-        conversation += prompt
+        try:
+            prompt = user_name + ": " + user_input + "\nZapy: "
+            conversation += prompt
 
-        _response = openai.Completion.create(engine='text-davinci-003', prompt=conversation, max_tokens=50)
-        response_string = _response['choices'][0]['text'].replace("\n", " ")
-        response_string = response_string.split(user_name + ":", 1)[0].split("Zapy:", 1)[0]
+            _response = openai.Completion.create(engine='text-davinci-003', prompt=conversation, max_tokens=50)
+            response_string = _response['choices'][0]['text'].replace("\n", " ")
+            response_string = response_string.split(user_name + ":", 1)[0].split("Zapy:", 1)[0]
 
-        conversation += response_string + "\n"
+            conversation += response_string + "\n"
 
-        print("Zapy: " + response_string)
-        engine.say(response_string)
-        engine.runAndWait()
+            print("Zapy: " + response_string)
+            engine.say(response_string)
+            engine.runAndWait()
+        except:
+            print("Check your connection")
+            new_keyword = user
+            keywords.append(new_keyword)
+            print("Bot: SORRY!! I'm not sure how to respond")
+            print("Bot: How should I respond to {" + new_keyword + "} ?")
+            new_response = input("BotResponse: ")
+            response.append(new_response)
+            newKeyword = txtfromlist('keywords.txt', keywords)
+            newResponse = txtfromlist('responses.txt', response)
+            print("Bot: New response has been updated")
         keyword_found = True
+        if save_response == "y":
+            keywords.append(user)
+            response.append(response_string)
+            newKeyword = txtfromlist('keywords.txt', keywords)
+            newResponse = txtfromlist('responses.txt', response)
+            print("Response saved")
+            engine.say("Response saved")
+            engine.runAndWait()
 
     user = input("You: ")
     user = user.lower()
