@@ -155,7 +155,7 @@ while user != "bye":
         for index in range(len(special)):
             if special[2] in user:
                 try:
-                    city = input("Bot: Enter the Name of City -> ")
+                    city = input("Bot: Enter the Name of City ->  ")
                     engine.say("Enter the Name of City")
                     city = city + " weather"
                     weather(city)
