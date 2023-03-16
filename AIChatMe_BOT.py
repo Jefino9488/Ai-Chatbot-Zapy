@@ -4,27 +4,55 @@ import random
 import time
 from datetime import date
 from datetime import datetime
-import requests
-from bs4 import BeautifulSoup
-from simplelist import listfromtxt, txtfromlist
 import openai
-import pyttsx3
+import requests
 import speech_recognition as rec
+from AppOpener import open, close
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.common import WebDriverException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from simplelist import listfromtxt, txtfromlist
+
 from API_Hidden_Key import api_key
 from Control import *
-from AppOpener import open, close
-
-
-
 
 try:
     from spotify import *
-except:
+except ImportError:
     pass
 
 engine = pyttsx3.init()
 r = rec.Recognizer()
 mic = rec.Microphone()
+
+
+def search_youtube(text):
+    try:
+        browser = webdriver.Chrome()
+        browser.get('https://www.youtube.com/')
+        search_box = browser.find_element(By.NAME, 'search_query')
+        search_box.send_keys(text)
+        search_box.send_keys(Keys.RETURN)
+        time.sleep(10)
+        results = browser.find_elements(By.ID, 'video-title')
+        results[0].click()
+        time.sleep(10)
+        browser.quit()
+    except WebDriverException:
+        print("An exception occurred while using WebDriver.")
+    except rec.UnknownValueError:
+        print("Speech Recognition could not understand audio.")
+    except rec.RequestError as e:
+        print(f"Could not request results from Speech Recognition service; {e}.")
+    except Exception as e:
+        print(f"An unexpected error occurred; {e}.")
+
+
+def say(text):
+    engine.say(text)
+    engine.runAndWait()
 
 
 def close_app(app_name, speech_text):
@@ -42,7 +70,8 @@ def open_app(app_name, speech_text):
 def weather(place="Chennai"):
     place = place.replace(" ", "+")
     resource = requests.get(
-        f'https://www.google.com/search?q={place}&oq={place}&aqs=chrome.0.35i39l2j0l4j46j69i60.6128j1j7&sourced=chrome&ie=UTF-8',
+        f'https://www.google.com/search?q={place}&oq={place}&aqs=chrome.0.35i39l2j0l4j46j69i60.6128j1j7&sourced'
+        f'=chrome&ie=UTF-8',
         headers=headers)
     print("Searching...")
     soup = BeautifulSoup(resource.text, 'html.parser')
@@ -59,72 +88,98 @@ def weather(place="Chennai"):
 
 def play_song():
     with mic as origin:
-        print("say the name of the song")
-        engine.say("say the name of the song")
-        engine.runAndWait()
+        print("Say the name of the song.")
+        say("Say the name of the song.")
         r.adjust_for_ambient_noise(origin, duration=0.2)
         sound = r.listen(origin)
         print("Recognizing...")
-        engine.say("Recognizing...")
-        engine.runAndWait()
+        say("Recognizing...")
     try:
         users_text = r.recognize_google(sound)
         print("You said: " + users_text)
-    except BaseException:
-        print("cant recognize, please try again")
-        engine.say("cant recognize, please try again")
-        engine.runAndWait()
+    except rec.UnknownValueError:
+        print("Speech Recognition could not understand audio.")
+        say("Speech Recognition could not understand audio.")
         return
+    except rec.RequestError as e:
+        print(f"Could not request results from Speech Recognition service; {e}.")
+        say("Could not request results from Speech Recognition service.")
+        return
+    except Exception as e:
+        print(f"An unexpected error occurred; {e}.")
+        say("An unexpected error occurred.")
+        return
+
     song(users_text)
     engine.say("playing music")
     engine.runAndWait()
 
 
 math_operations = {
-    "addition": lambda n1, n2: n1 + n2,
-    "subtraction": lambda n1, n2: n1 - n2,
-    "multiplication": lambda n1, n2: n1 * n2,
-    "division": lambda n1, n2: n1 / n2,
-    "modulus": lambda n1, n2: n1 % n2,
-    "exponential": lambda n1, n2: n1 ** n2,
-    "square root": lambda n1: n1 ** 0.5,
-    "cube root": lambda n1: n1 ** 0.333,
-    "square": lambda n1: n1 ** 2,
-    "cube": lambda n1: n1 ** 3,
-    "log": lambda n1: math.log(n1),
-    "log base 10": lambda n1, n2=None: math.log10(n1) if n2 is None else "Invalid Operation",
-    "log base 2": lambda n1, n2=None: math.log2(n1) if n2 is None else "Invalid Operation",
-    "factorial": lambda n1, n2=None: math.factorial(n1) if n2 is None else "Invalid Operation",
-    "sin": lambda n1, n2=None: math.sin(n1) if n2 is None else "Invalid Operation",
-    "cos": lambda n1, n2=None: math.cos(n1) if n2 is None else "Invalid Operation",
-    "tan": lambda n1, n2=None: math.tan(n1) if n2 is None else "Invalid Operation",
-    "sin inverse": lambda n1, n2=None: math.asin(n1) if n2 is None else "Invalid Operaotion",
-    "cos inverse": lambda n1, n2=None: math.acos(n1) if n2 is None else "Invalid Operatin",
-    "tan inverse": lambda n1, n2=None: math.atan(n1) if n2 is None else "Invalid Operation",
-    "arcsin": lambda n1, n2=None: math.asin(n1) if n2 is None else "Invalid Operation",
-    "arccos": lambda n1, n2=None: math.acos(n1) if n2 is None else "Invalid Operation",
-    "arctan": lambda n1, n2=None: math.atan(n1) if n2 is None else "Invalid Operation",
-    "sinh": lambda n1, n2=None: math.sinh(n1) if n2 is None else "Invalid Operation",
-    "cosh": lambda n1, n2=None: math.cosh(n1) if n2 is None else "Invalid Operation",
-    "tanh": lambda n1, n2=None: math.tanh(n1) if n2 is None else "Invalid Operation",
-    "sinh inverse": lambda n1, n2=None: math.asinh(n1) if n2 is None else "Invalid Operation",
-    "cosh inverse": lambda n1, n2=None: math.acosh(n1) if n2 is None else "Invalid Operation",
-    "tanh inverse": lambda n1, n2=None: math.atanh(n1) if n2 is None else "Invalid Operation",
-    "arcsinh": lambda n1, n2=None: math.asinh(n1) if n2 is None else "Invalid Operation",
-    "arccosh": lambda n1, n2=None: math.acosh(n1) if n2 is None else "Invalid Operation",
-    "arctanh": lambda n1, n2=None: math.atanh(n1) if n2 is None else "Invalid Operation",
-    "degrees": lambda n1, n2=None: math.degrees(n1) if n2 is None else "Invalid Operation",
-    "radians": lambda n1, n2=None: math.radians(n1) if n2 is None else "Invalid Operation",
+    "addition": lambda num1, num2: num1 + num2,
+    "subtraction": lambda num1, num2: num1 - num2,
+    "multiplication": lambda num1, num2: num1 * num2,
+    "division": lambda num1, num2: num1 / num2,
+    "modulus": lambda num1, num2: num1 % num2,
+    "exponential": lambda num1, num2: num1 ** num2,
+    "square root": lambda num1: num1 ** 0.5,
+    "cube root": lambda num1: num1 ** 0.333,
+    "square": lambda num1: num1 ** 2,
+    "cube": lambda num1: num1 ** 3,
+    "log": lambda mum1: math.log(mum1),
+    "log base 10": lambda mum1, num2=None: math.log10(mum1) if num2 is None else "Invalid Operation",
+    "log base 2": lambda num1, num2=None: math.log2(num1) if num2 is None else "Invalid Operation",
+    "factorial": lambda num1, mum2=None: math.factorial(num1) if mum2 is None else "Invalid Operation",
+    "sin": lambda num1, mum2=None: math.sin(num1) if mum2 is None else "Invalid Operation",
+    "cos": lambda num1, num2=None: math.cos(num1) if num2 is None else "Invalid Operation",
+    "tan": lambda num1, num2=None: math.tan(num1) if num2 is None else "Invalid Operation",
+    "sin inverse": lambda num1, num2=None: math.asin(num1) if num2 is None else "Invalid Operation",
+    "cos inverse": lambda num1, num2=None: math.acos(num1) if num2 is None else "Invalid Operation",
+    "tan inverse": lambda num1, num2=None: math.atan(num1) if num2 is None else "Invalid Operation",
+    "arcs in": lambda num1, num2=None: math.asin(num1) if num2 is None else "Invalid Operation",
+    "arc cos": lambda num1, num2=None: math.acos(num1) if num2 is None else "Invalid Operation",
+    "arc tan": lambda num1, num2=None: math.atan(num1) if num2 is None else "Invalid Operation",
+    "sinh": lambda num1, num2=None: math.sinh(num1) if num2 is None else "Invalid Operation",
+    "cosh": lambda num1, num2=None: math.cosh(num1) if num2 is None else "Invalid Operation",
+    "tanh": lambda num1, num2=None: math.tanh(num1) if num2 is None else "Invalid Operation",
+    "sinh inverse": lambda num1, num2=None: math.asinh(num1) if num2 is None else "Invalid Operation",
+    "cosh inverse": lambda num1, num2=None: math.acosh(num1) if num2 is None else "Invalid Operation",
+    "tanh inverse": lambda num1, num2=None: math.atanh(num1) if num2 is None else "Invalid Operation",
+    "arc sinh": lambda num1, num2=None: math.asinh(num1) if num2 is None else "Invalid Operation",
+    "arc cosh": lambda num1, num2=None: math.acosh(num1) if num2 is None else "Invalid Operation",
+    "arc tanh": lambda num1, num2=None: math.atanh(num1) if num2 is None else "Invalid Operation",
+    "degrees": lambda num1, num2=None: math.degrees(num1) if num2 is None else "Invalid Operation",
+    "radians": lambda num1, num2=None: math.radians(num1) if num2 is None else "Invalid Operation",
     "pi": lambda: math.pi,
     "e": lambda: math.e,
     "tau": lambda: math.tau,
     "gamma": lambda: math.gamma,
 }
 
+commands = {
+    "open Google": lambda: open_app("google chrome", "opening google"),
+    "open chrome": lambda: open_app("google chrome", "opening google"),
+    "open YouTube": lambda: open_app("youtube", "opening youtube"),
+    "open WhatsApp": lambda: open_app("whatsapp", "opening whatsapp"),
+    "open Firefox": lambda: open_app("firefox", "opening firefox"),
+    "play a song": play_song,
+    "increase brightness": increase_,
+    "increase the brightness": increase_,
+    "decrease volume": decrease,
+    "decrease the volume": decrease,
+    "increase volume": increase,
+    "increase the volume": increase,
+    "decrease brightness": decrease_,
+    "decrease the brightness": decrease_,
+    "open camera": lambda: open_app("camera", "opening camera"),
+    "open calculator": lambda: open_app("calculator", "opening calculator"),
+    "open Notepad": lambda: open_app("notepad", "opening notepad"),
+}
+
 
 def user_input():
-    user = input("{}: ".format(user_name))
-    user.lower()
+    user_in = input("{}: ".format(user_name))
+    user_in.lower()
 
 
 print("""\033[34m
@@ -137,7 +192,8 @@ print("""\033[34m
 openai.api_key = api_key()
 
 conversation = ""
-bot_name = "Zapy"
+bot_name = "\033[35mZapy\033[0m"
+bot = "Zapy"
 version = "1.0"
 # resource initialisation
 t = time.localtime()
@@ -145,14 +201,13 @@ d = date.today()
 dt = datetime.now().strftime('%A')
 current_time = time.strftime("%H:%M:%S", t)
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (HTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (HTML, like Gecko) '
+                  'Chrome/58.0.3029.110 Safari/537.3'}
 greetings = ["Hello!", "What's up?!", "Howdy!", "Greetings!"]
 goodbyes = ["Bye!", "Goodbye!", "See you later!", "See you soon!"]
 special = ['day', 'time', 'weather', "/voice", "maths"]
 
 res = [dt, current_time, ]
-
-# initial functions
 
 keywords = listfromtxt('keywords.txt')
 
@@ -160,24 +215,20 @@ response = listfromtxt('responses.txt')
 
 current_time = time.strftime("%H:%M:%S", t)
 
-# checking files
 
-intial = """
+initial = """
 █ █▄░█ █ ▀█▀ █ ▄▀█ █░░ █ ▀█ █ █▄░█ █▀▀   ▀█ ▄▀█ █▀█ █▄█
 █ █░▀█ █ ░█░ █ █▀█ █▄▄ █ █▄ █ █░▀█ █▄█   █▄ █▀█ █▀▀ ░█░"""
 dot = "   ▄ ▄ ▄"
-engine.say("Initialising {}".format(bot_name))
-engine.runAndWait()
-print(intial, end='')
+say("Initialising {}".format(bot))
+print(initial, end='')
 for char in dot:
     print(char, end='', flush=True)
     time.sleep(0.3)
 print()
 print("""𝕡𝕝𝕖𝕒𝕤𝕖 𝕨𝕒𝕚𝕥...""")
-engine.say(" please wait")
-engine.runAndWait()
+say(" please wait")
 time.sleep(1)
-
 Keyword_file = os.path.exists('keywords.txt')
 response_file = os.path.exists('responses.txt')
 time.sleep(1)
@@ -196,43 +247,37 @@ if not response_file:
     print("done")
 
 # bot starts
-engine.say("AI Chat Me BOT {}, version {}, Initiated".format(bot_name, version))
+engine.say("AI Chat Me BOT {}, version {}, Initiated".format(bot, version))
 print("\033[32m{}: AI Chat Me BOT {}, version {}, Initiated\033[0m".format(bot_name, bot_name, version))
 time.sleep(1)
 engine.runAndWait()
-user = input("\033[36mselect mode: \n 1. user mode\033[0m \n \033[31m2. dev mode\033[0m \n You: ") or "1"
+user = input("\033[36m select mode: \n 1. user mode\033[0m \n \033[31m2. dev mode\033[0m \n You: ") or "1"
 save_response = "n"
 if user == "1":
     print("{}: user mode selected".format(bot_name))
-    engine.say("user mode selected")
-    engine.runAndWait()
+    say("user mode selected")
     print("{}: Text to speech enabled, use /voice to enable voice mode".format(bot_name))
-    engine.say("Text to speech enabled, use /voice to enable voice mode")
-    engine.runAndWait()
+    say("Text to speech enabled, use /voice to enable voice mode")
 elif user == "2":
     print("\033[31m2{}: dev mode selected".format(bot_name))
-    engine.say("dev mode selected")
-    engine.runAndWait()
-    engine.say("Do you want to save new response?")
-    engine.runAndWait()
+    say("dev mode selected")
+    say("Do you want to save new response?")
     save_response = input(
         "Do you want to save this response? (y/n) \n [tip: save when you are training the bot] \n You: ")
     print("{}: Text to speech enabled, use /voice to enable voice mode".format(bot_name))
-    engine.say("Text to speech enabled, use /voice to enable voice mode")
-    engine.runAndWait()
+    say("Text to speech enabled, use /voice to enable voice mode")
 
-engine.say("Let me know your name, before we start")
-engine.runAndWait()
 print("{}: Let me know your name, before we start".format(bot_name))
-user1name = input("please enter your name:") or "user"
+say("Let me know your name, before we start")
+user_name = input("\033[35m please enter your name\033[0m:") or "user"
+user_name = "{}".format(user_name)
 print("{}: ""Hello! {} I am {}, a virtual assistant."
-        " I'm here to answer your questions. How can I assist you today?".format(bot_name, user1name, bot_name))
-engine.say(
+      " I'm here to answer your questions. How can I assist you today?".format(bot_name, user_name, bot_name))
+say(
     "Hello! {} I am {}, a virtual assistant. I am here to answer your questions. How can I assist you today?".format(
-        user1name, bot_name))
-engine.runAndWait()
-user_name = "{}".format(user1name)
-user = input("You: ")
+        user_name, bot))
+user_name = "\033[95m{}\033[0m".format(user_name)
+user = input("{}: ".format(user_name))
 user = user.lower()
 
 while user != "bye":
@@ -241,8 +286,7 @@ while user != "bye":
     for index in range(len(keywords)):
         if keywords[index] == user:
             print("{}: ".format(bot_name) + response[index])
-            engine.say(response[index])
-            engine.runAndWait()
+            say(response[index])
             keyword_found = True
             break
     # special
@@ -255,17 +299,18 @@ while user != "bye":
                     city = city + " weather"
                     weather(city)
                     keyword_found = True
-                except:
-                    print("An error occurred")
-                    engine.say("An error occurred")
-                    print("[Check your Connection]")
-                    engine.say("Check your Connection")
+                except requests.exceptions.RequestException:
+                    print(
+                        "Sorry, I could not retrieve the weather data. Please check your network connection or try "
+                        "again later.")
+                    say("Sorry, I could not retrieve the weather data. Please check your network connection or try "
+                        "again later.")
                     keyword_found = True
-                    pass
+
                 break
-            elif user == "play a song" or user == "play song" or user == "play a song for me" or user == "play song for me":
-                engine.say("playing a song")
-                engine.runAndWait()
+            elif user == "play a song" or user == "play song" or user == "play a song for me" or user == "play song " \
+                                                                                                         "for me":
+                say("playing a song")
                 songv()
                 keyword_found = True
                 break
@@ -282,11 +327,11 @@ while user != "bye":
                     if operation in ["square root", "cube root", "square", "cube", "log", "log base 10",
                                      "log base 2",
                                      "factorial", "sin", "cos", "tan", "sin inverse", "cos inverse", "tan inverse",
-                                     "arcsin", "arccos", "arctan", "sinh", "cosh", "tanh", "sinh inverse",
-                                     "cosh inverse", "tanh inverse", "arcsinh", "arccosh", "arctanh", "degrees",
+                                     "arc sin", "arc cos", "arc tan", "sinh", "cosh", "tanh", "sinh inverse",
+                                     "cosh inverse", "tanh inverse", "arc sinh", "arc cosh", "arc tanh", "degrees",
                                      "radians"]:
 
-                        # If operation requires only one input, set n2 to a default value of 0
+                        # If operation requires only one input, set num2 to a default value of 0
 
                         n2 = None
 
@@ -303,9 +348,10 @@ while user != "bye":
                     keyword_found = True
 
             elif user == "hi" or user == "hello" or user == "hey":
-                print("{}: ".format(bot_name) + random.choice(greetings))
+                greet = random.choice(greetings)
+                print("{}: ".format(bot_name), greet)
+                say(greet)
                 keyword_found = True
-
                 break
 
             elif user == "change your name":
@@ -315,68 +361,54 @@ while user != "bye":
 
             elif special[3] == user:
                 print("voice mode enabled")
-                engine.say("voice mode enabled")
-                engine.runAndWait()
-                commands = {
-                    "open Google": lambda: open_app("google chrome", "opening google"),
-                    "open chrome": lambda: open_app("google chrome", "opening google"),
-                    "open YouTube": lambda: open_app("youtube", "opening youtube"),
-                    "open WhatsApp": lambda: open_app("whatsapp", "opening whatsapp"),
-                    "open Firefox": lambda: open_app("firefox", "opening firefox"),
-                    "play a song": play_song,
-                    "increase brightness": increase_,
-                    "increase the brightness": increase_,
-                    "decrease volume": decrease,
-                    "decrease the volume": decrease,
-                    "increase volume": increase,
-                    "increase the volume": increase,
-                    "decrease brightness": decrease_,
-                    "decrease the brightness": decrease_,
-                    "open camera": lambda: open_app("camera", "opening camera"),
-                    "open calculator": lambda: open_app("calculator", "opening calculator"),
-                    "open Notepad": lambda: open_app("notepad", "opening notepad"),
-                }
+                say("voice mode enabled")
                 while True:
                     with mic as source:
-                        print("listening...")
-                        engine.say("listening...")
-                        engine.runAndWait()
+                        print("\033[32mListening...\033[0m")
+                        say("listening...")
                         r.adjust_for_ambient_noise(source, duration=0.2)
                         audio = r.listen(source)
-                        print("recognising...")
-                        engine.say("recognising...")
-                        engine.runAndWait()
+                        print("\033[34mRecognising...\033[0m")
+                        say("recognising...")
                     try:
                         user_input = r.recognize_google(audio)
                         print("You said: " + user_input)
-                    except:
-                        print("Could not recognize,please try again")
-                        engine.say("Could not recognize,please try again")
-                        engine.runAndWait()
+                    except rec.UnknownValueError:
+                        print("{} :\033[31mSorry, I could not understand. Please try again.\033[0m".format(bot_name))
+                        say("Sorry, I could not understand. Please try again.")
                         continue
-
                     if user_input in commands:
                         commands[user_input]()
+                    elif 'open YouTube and search ' in user_input:
+                        # Extract the query from the command
+                        query = user_input.split('search ')[-1]
+                        say("Searching for " + query)
+                        search_youtube(query)
                     else:
                         try:
-                            prompt = user_name + ": " + user_input + "\n{}: ".format(bot_name)
+                            prompt = user_name + ": " + user_input + "\n{}:".format(bot_name)
                             conversation += prompt
+                            start_time = time.time()
 
-                            response_ = openai.Completion.create(engine='text-davinci-003', prompt=conversation,
-                                                                     max_tokens=50)
-                            response_string = response_['choices'][0]['text'].replace("\n", " ")
+                            _response = openai.Completion.create(engine='text-davinci-003', prompt=conversation,
+                                                                 max_tokens=50)
+
+                            response_string = _response['choices'][0]['text'].replace("\n", " ")
                             response_string = \
                                 response_string.split(user_name + ":", 1)[0].split("{}:".format(bot_name), 1)[0]
+                            elapsed_time = time.time() - start_time
+                            if elapsed_time > 10:
+                                print("Please wait, I'm thinking...")
+                                say("Please wait, I'm thinking...")
+                                continue
 
                             conversation += response_string + "\n"
 
                             print("{}: ".format(bot_name) + response_string)
-                            engine.say(response_string)
-                            engine.runAndWait()
-                        except:
-                            print("check your internet connection")
-                            engine.say("check your internet connection")
-                            engine.runAndWait()
+                            say(response_string)
+                        except requests.exceptions.RequestException:
+                            print("Check your connection")
+                            say("check your internet connection")
                             continue
 
                     if user_input == "exit":
@@ -389,40 +421,46 @@ while user != "bye":
         try:
             prompt = user_name + ": " + user_input + "\n{}:".format(bot_name)
             conversation += prompt
+            start_time = time.time()
 
             _response = openai.Completion.create(engine='text-davinci-003', prompt=conversation, max_tokens=50)
+
             response_string = _response['choices'][0]['text'].replace("\n", " ")
             response_string = response_string.split(user_name + ":", 1)[0].split("{}:".format(bot_name), 1)[0]
+            elapsed_time = time.time() - start_time
+            if elapsed_time > 10:
+                print("Waiting...")
+                say("Please wait, I'm thinking...")
+                continue
 
             conversation += response_string + "\n"
 
-            print("Zapy: " + response_string)
-            engine.say(response_string)
-            engine.runAndWait()
+            print("{}: ".format(bot_name) + response_string)
+            say(response_string)
         except:
-                print("Check your connection")
-                new_keyword = user
-                keywords.append(new_keyword)
-                print("{}: SORRY!! I'm not sure how to respond".format(bot_name))
-                print("{}: How should I respond to [ {} ] ?".format(bot_name, new_keyword))
-                new_response = input("BotResponse: ")
+            print("Check your connection")
+            new_keyword = user
+            keywords.append(new_keyword)
+            print("{}: SORRY!! I'm not sure how to respond".format(bot_name))
+            print("{}: How should I respond to [ {} ] ?".format(bot_name, new_keyword))
+            new_response = input("BotResponse: ")
+            if new_response == "exit":
+                break
+            else:
                 response.append(new_response)
                 txtfromlist('keywords.txt', keywords)
                 txtfromlist('responses.txt', response)
                 print("{}: New response has been updated".format(bot_name))
-                keyword_found = True
+            keyword_found = True
         if save_response == "y":
             keywords.append(user)
-            response.append(response_string)
+            response.append()
             txtfromlist('keywords.txt', keywords)
             txtfromlist('responses.txt', response)
             print("Response saved")
-            engine.say("Response saved")
-            engine.runAndWait()
+            say("Response saved")
 
     user = input("{}: ".format(user_name))
     user = user.lower()
 
 print("{}:".format(bot_name), random.choice(goodbyes))
-
-
