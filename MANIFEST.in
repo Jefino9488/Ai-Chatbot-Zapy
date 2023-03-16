@@ -1,0 +1,11 @@
+include LICENSE
+include README.md
+include AIChatMe_BOT.py
+include API_Hidden_Key.py
+include ChatMe_BOT.py
+include Control.py
+include beta.py
+include keywords.txt
+include requirements.txt
+include responses.txt
+include spotify.py
