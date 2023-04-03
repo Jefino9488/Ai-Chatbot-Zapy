@@ -15,6 +15,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from simplelist import listfromtxt, txtfromlist
 
+
 from API_Hidden_Key import api_key
 from Control import *
 
@@ -194,7 +195,7 @@ openai.api_key = api_key()
 conversation = ""
 bot_name = "\033[35mZapy\033[0m"
 bot = "Zapy"
-version = "1.0"
+version = "1.0.1"
 # resource initialisation
 t = time.localtime()
 d = date.today()
@@ -214,7 +215,6 @@ keywords = listfromtxt('keywords.txt')
 response = listfromtxt('responses.txt')
 
 current_time = time.strftime("%H:%M:%S", t)
-
 
 initial = """
 █ █▄░█ █ ▀█▀ █ ▄▀█ █░░ █ ▀█ █ █▄░█ █▀▀   ▀█ ▄▀█ █▀█ █▄█
@@ -366,7 +366,7 @@ while user != "bye":
                     with mic as source:
                         print("\033[32mListening...\033[0m")
                         say("listening...")
-                        r.adjust_for_ambient_noise(source, duration=0.2)
+                        r.adjust_for_ambient_noise(source, duration=0.5)
                         audio = r.listen(source)
                         print("\033[34mRecognising...\033[0m")
                         say("recognising...")
