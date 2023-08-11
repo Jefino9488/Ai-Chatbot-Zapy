@@ -40,3 +40,5 @@ select the operator, to exit type "exit"
 
 ![image](https://user-images.githubusercontent.com/89455522/216751228-ea4ce238-6cf2-4c5b-861d-fbe14d14884f.png)
 
+### Offline mode
+> Learns from the users prompt & queries & after further analysis it responds to our queries ofline which will be more faster than api request & other online services.
