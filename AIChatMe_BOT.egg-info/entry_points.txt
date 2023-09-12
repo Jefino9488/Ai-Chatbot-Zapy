@@ -1,0 +1,2 @@
+[console_scripts]
+aichatme_bot = AIChatMe_BOT:main
