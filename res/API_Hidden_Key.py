@@ -1,6 +1,6 @@
 # paste your api key from open ai here
 def api_key():
-    return "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"
+    return "Your API Key"
 
 
-APIKEY = "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"
+APIKEY = "Your API Key"
