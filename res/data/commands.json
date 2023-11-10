@@ -1,0 +1,18 @@
+{
+    "open_app": {
+        "pattern": "open (.+)",
+        "action": "open_app"
+    },
+    "close_app": {
+        "pattern": "close (.+)",
+        "action": "close_app"
+    },
+    "search_youtube": {
+        "pattern": "search youtube (.+)",
+        "action": "search_youtube"
+    },
+    "browse": {
+        "pattern": "browse (.+)",
+        "action": "browse"
+    }
+}

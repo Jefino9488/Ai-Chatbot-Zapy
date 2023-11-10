@@ -1,1 +1,16 @@
-{"how are you": ["I'm doing well, thank you!", "I'm feeling great today!", "I'm fine, thank you for asking.", "I'm good, how about you?", "I'm doing fine, thanks for checking in!", "I'm quite well, thanks!", "I'm feeling fantastic!", "I'm in a great mood today!", "I'm doing splendidly!", "I'm feeling wonderful!", "I'm feeling upbeat and positive!", "I'm enjoying a good day!", "I'm feeling lively and energetic!"], "who are you": ["I am your friendly chatbot!", "I'm an AI designed to help answer your questions.", "I'm here to assist you with information and tasks.", "I'm a virtual assistant here to provide you with help.", "I'm your personal digital companion!", "I'm an AI that's always here to chat!", "I'm a conversation partner created by advanced technology.", "I exist to provide you with information and support.", "I'm a language model AI developed to assist you.", "I'm an intelligent program created to interact with you.", "I'm your AI friend, ready to chat anytime!", "I'm a virtual buddy here to engage in conversation!"], "what is your favorite color": ["I don't have a favorite color.", "I'm not capable of having preferences like humans.", "I'm indifferent to colors as I am an AI.", "I don't experience emotions or have preferences.", "I don't possess personal likes or dislikes.", "I lack the ability to feel or perceive colors.", "I'm neutral towards colors as I lack human senses.", "I'm here to provide information, not express preferences.", "I don't have sensory experiences like humans do.", "I'm focused on assisting you, not on personal preferences."], "how you doing": ["I'm doing well, thank you!"], "hello": ["hi How are you"], "hi": ["hi How are you"]}
+{
+  "how are you": [
+    "I'm doing well, thank you!",
+    "I'm feeling great today!",
+    "I'm fine, thank you for asking.",
+    "I'm good, how about you?",
+    "I'm doing fine, thanks for checking in!",
+    "I'm quite well, thanks!",
+    "I'm feeling fantastic!",
+    "I'm in a great mood today!",
+    "I'm doing splendidly!",
+    "I'm feeling wonderful!",
+    "I'm feeling upbeat and positive!",
+    "I'm enjoying a good day!",
+    "I'm feeling lively and energetic!"
+  ], "who are you": ["I am your friendly chatbot!", "I'm an AI designed to help answer your questions.", "I'm here to assist you with information and tasks.", "I'm a virtual assistant here to provide you with help.", "I'm your personal digital companion!", "I'm an AI that's always here to chat!", "I'm a conversation partner created by advanced technology.", "I exist to provide you with information and support.", "I'm a language model AI developed to assist you.", "I'm an intelligent program created to interact with you.", "I'm your AI friend, ready to chat anytime!", "I'm a virtual buddy here to engage in conversation!"], "what is your favorite color": ["I don't have a favorite color.", "I'm not capable of having preferences like humans.", "I'm indifferent to colors as I am an AI.", "I don't experience emotions or have preferences.", "I don't possess personal likes or dislikes.", "I lack the ability to feel or perceive colors.", "I'm neutral towards colors as I lack human senses.", "I'm here to provide information, not express preferences.", "I don't have sensory experiences like humans do.", "I'm focused on assisting you, not on personal preferences."], "how you doing": ["I'm doing well, thank you!"], "hello": ["hi How are you"], "hi": ["hi How are you"]}

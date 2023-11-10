@@ -15,10 +15,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from res.API_Hidden_Key import api_key
 from res.Control import *
-from res.bot_functions import BotFunctions
 from res.simplelist import listfromtxt, txtfromlist
 
-bc = BotFunctions()
 try:
     from spotify import *
 except ImportError:
@@ -58,7 +56,7 @@ def say(text):
 
 def close_app(app_name, speech_text):
     close(app_name)
-    bot.say(speech_text)
+    bc.say(speech_text)
     engine.runAndWait()
 
 
@@ -70,24 +68,30 @@ def open_app(app_name, speech_text):
 
 def weather(place="Chennai"):
     try:
-        place = place.replace(" ", "+")
-        resource = requests.get(
-            f"https://www.google.com/search?q={place}+weather", headers=headers
-        )
+        cite = place
+        url = "https://www.google.com/search?q=" + "weather" + cite
+        html = requests.get(url).content
 
-        print("Searching...")
-        soup = BeautifulSoup(resource.text, "html.parser")
+        # getting raw data
+        soup = BeautifulSoup(html, "html.parser")
+        temp = soup.find("div", attrs={"class": "BNeawe iBp4i AP7Wnd"}).text
+        str = soup.find("div", attrs={"class": "BNeawe tAd8D AP7Wnd"}).text
 
-        location = soup.select(".wob_loc")[0].getText().strip()
-        info = soup.select(".wob_d")[0].getText().strip()
-        temp = soup.select(".wob_t")[0].getText().strip()
+        # formatting data
+        data = str.split("\n")
+        sec = data[0]
+        sky = data[1]
+        list_div = soup.findAll("div", attrs={"class": "BNeawe s3v9rd AP7Wnd"})
+        std = list_div[5].text
+        pos = std.find("Wind")
+        other_data = std[pos:]
+        print("Temperature is", temp)
+        print("Time: ", sec)
+        print("Sky Description: ", sky)
+        print(other_data)
 
-        print(location)
-        print(info)
-        print(temp + "°C")
-
-        engine.say(
-            f"The weather in {location} is {info} and the temperature is {temp} degrees celsius"
+        bc.say(
+            f"The weather in {place} is {sky} and the temperature is {temp} and {other_data}"
         )
 
     except requests.exceptions.RequestException:
@@ -382,7 +386,6 @@ while user != "bye":
             if special[2] in user:
                 try:
                     city = input("{}: Enter the Name of City ->  ".format(bot_name))
-                    engine.say("Enter the Name of City")
                     city = city + " weather"
                     weather(city)
                     keyword_found = True

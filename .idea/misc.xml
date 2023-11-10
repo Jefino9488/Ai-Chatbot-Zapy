@@ -5,7 +5,7 @@
     <option name="enabledOnSave" value="true" />
     <option name="executionMode" value="BINARY" />
     <option name="pathToExecutable" value="X:\Users\Jefino\anaconda3\Scripts\black.exe" />
-    <option name="sdkUUID" value="4d042cd6-8327-47cb-8b7d-6ed615ac3714" />
+    <option name="sdkName" value="Python 3.11 (Ai-Chatbot-Zapy)" />
   </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11 (Ai-Chatbot-Zapy)" project-jdk-type="Python SDK" />
 </project>
