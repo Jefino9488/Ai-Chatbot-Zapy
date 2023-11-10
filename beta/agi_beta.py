@@ -10,7 +10,7 @@ class SelfLearnableChatbot:
     def __init__(self):
         self.memory = {}
         self.default_response = "I'm not sure I understand."
-        self.memory_file = "beta/chatbot_memory.json"
+        self.memory_file = "chatbot_memory.json"
         self.load_memory()
 
     def respond(self, message):
